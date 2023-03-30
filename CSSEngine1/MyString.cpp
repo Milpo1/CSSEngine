@@ -1,11 +1,12 @@
 #include "MyString.h"
 #define MIN_ASCII '!'
 #define MAX_ASCII '~'
+#define EOS '\0'
 bool String::hasAChar()
 {
 	if (this->str == nullptr) return 0;
 	int l = 0;
-	while (this->str[l] != '\0') 
+	while (this->str[l] != EOS) 
 	{
 		if (this->str[l] >= MIN_ASCII && this->str[l++] <= MAX_ASCII) return true;
 	}
@@ -21,7 +22,7 @@ int String::getLength() const
 {
 	if (this->str == nullptr) return 0;
 	int l = 0;
-	while (this->str[l++] != '\0') {}
+	while (this->str[l++] != EOS) {}
 	return l;
 }
 int String::getBlocks() const
@@ -38,7 +39,7 @@ void String::allocate(int length)
 		for (int i = 0; i < length; i++)
 		{
 			temp[i] = this->str[i];
-			if (str[i] == '\0') break;
+			if (str[i] == EOS) break;
 		}
 		delete[] this->str;
 		this->str = temp;
@@ -78,7 +79,7 @@ void String::SetStr(const char* str)
 	if (str != nullptr)
 	{
 		l = 0;
-		while (str[l++] != '\0') {}
+		while (str[l++] != EOS) {}
 		this->allocate(l);
 		for (int i = 0; i < l; i++)
 			this->str[i] = str[i];
@@ -120,7 +121,7 @@ String& String::operator+(const char* right)
 		return *this;
 	}
 	int a = this->getLength(), b = 0;
-	while (right[b++] != '\0') {}
+	while (right[b++] != EOS) {}
 	if (a + b - 1 < this->blocks * STR_BLOCK_SIZE)
 	{
 		for (int i = 0; i < b; i++)

@@ -5,7 +5,7 @@ Engine::Engine()
 {
 	this->nOfBlocks = 0;
 }
-Block* Engine::findFirstFreeBlock()
+DLLNode* Engine::findFirstFreeNode()
 {
 	if (this->DLList.head == nullptr) this->DLList.initHead();
 	DLLNode* ptr = this->DLList.head;
@@ -20,6 +20,17 @@ Block* Engine::findFirstFreeBlock()
 		ptr = ptr->next;
 		firstFreeBlock = ptr->isFull();
 	}
+	return ptr;
+}
+Block* Engine::findFirstFreeBlock(DLLNode* ptr)
+{
+	if (ptr == nullptr)
+	{
+		DLLNode* ptr = this->findFirstFreeNode();
+		
+	}
+	if (ptr == nullptr) return nullptr;
+	int firstFreeBlock = ptr->isFull();
 	return &(ptr->Data[firstFreeBlock]);
 }
 bool Engine::addCSS(int block_id, const char* name, const char* content)
@@ -36,10 +47,14 @@ bool Engine::addCSS(int block_id, const char* name, const char* content)
 }
 bool Engine::addBlock(const Block& block)
 {
-	Block* firstFree = findFirstFreeBlock();
+	DLLNode* node = findFirstFreeNode();
+	Block* firstFree = findFirstFreeBlock(node);
+	int cellNumber = node->isFull();
 	if (firstFree != nullptr)
 	{
-		*(findFirstFreeBlock()) = block;
+		*firstFree = block;
+		this->nOfBlocks++;
+		node->flag[cellNumber] = true;
 		return true;
 	}
 	return false;
@@ -267,6 +282,15 @@ void Engine::getInput()
 			if (ch == BLOCK_OPEN) continue;
 			if (ch == BLOCK_CLOSE)
 			{
+				if (text.getLength() <= 1)
+				{
+					if (tempBlock != nullptr)
+					{
+						this->addBlock(*tempBlock);
+						freePtr<Block>(&tempBlock);
+						tempBlock = new Block;
+					}
+				}
 				mode = SEARCH_SELECTORS;
 				freePtr<CSSData>(&tempData);
 				text.clear();
@@ -299,7 +323,7 @@ void Engine::getInput()
 					mode = SEARCH_SELECTORS;
 					this->addBlock(*tempBlock);
 					freePtr<Block>(&tempBlock);
-					freePtr<CSSData>(&tempData);
+					tempBlock = new Block;
 				}
 				continue;
 			}			
@@ -319,7 +343,7 @@ void Engine::getInput()
 			}
 		}
 
-		char stringToAppend[2] = { ch, '\0' };
+		char stringToAppend[2] = { ch, EOS };
 		text = text + stringToAppend;
 	}
 	if (tempBlock != nullptr) delete tempBlock;

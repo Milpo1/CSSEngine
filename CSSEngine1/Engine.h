@@ -12,6 +12,7 @@
 #define COMMAND_END '*'
 #define COMMAND_BEGIN_STR "???"
 #define COMMAND_END_STR "***"
+#define EOS '\0'
 
 class Engine
 {
@@ -20,7 +21,8 @@ private:
 	int nOfBlocks;
 public:
 	Engine();
-	Block* findFirstFreeBlock();
+	DLLNode* findFirstFreeNode();
+	Block* findFirstFreeBlock(DLLNode* ptr = nullptr);
 	DLLNode* getNodeByBlockId(int block_id);
 	Block* getBlockByBlockId(int block_id);
 	bool addCSS(int block_id, const char* name, const char* content = nullptr);
