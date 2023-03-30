@@ -299,6 +299,7 @@ void Engine::getInput()
 					mode = SEARCH_SELECTORS;
 					this->addBlock(*tempBlock);
 					freePtr<Block>(&tempBlock);
+					freePtr<CSSData>(&tempData);
 				}
 				continue;
 			}			
