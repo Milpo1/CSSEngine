@@ -1,6 +1,11 @@
 #include <cstdio>
 #include "Engine.h"
 #include "MyString.h"
+enum Engine::Type
+{
+	selector,
+	attribute
+};
 Engine::Engine()
 {
 	this->nOfBlocks = 0;
@@ -33,6 +38,23 @@ Block* Engine::findFirstFreeBlock(DLLNode* ptr)
 	if (ptr == nullptr) return nullptr;
 	int firstFreeBlock = ptr->isFull();
 	return &(ptr->Data[firstFreeBlock]);
+}
+LLNode* Engine::findNodeWithName(LList* list, const char* str)
+{
+	if (list == nullptr || str == nullptr) return nullptr;
+	LLNode* node = list->head;
+	while (node != nullptr)
+	{
+		char* name = node->Data.GetName();
+		if (name != nullptr
+		&& strcmp(name, str) == 0)
+		{
+			return node;
+		}
+		node = node->next;
+	}
+	return nullptr;
+
 }
 bool Engine::addCSS(int block_id, const char* name, const char* content)
 {
@@ -98,88 +120,63 @@ int Engine::getNumberOfBlocks()
 	return n;*/
 	return this->nOfBlocks;
 }
-int Engine::getNumberOfSelectorsByBlockId(int block_id)
+int Engine::getNumberOfSelectorsByBlockId(int block_id) //
 {
-	Block* block = getBlockByBlockId(block_id);
+	Block* block = this->getBlockByBlockId(block_id);
 	if (block == nullptr) return 0;
 	return block->selectors.getLength();
 }
-int Engine::getNumberOfAttributesByBlockId(int block_id)
+int Engine::getNumberOfAttributesByBlockId(int block_id) //
 {
-	Block* block = getBlockByBlockId(block_id);
+	Block* block = this->getBlockByBlockId(block_id);
 	if (block == nullptr) return 0;
 	return block->attributes.getLength();
 }
-char* Engine::getSelectorByBlockId(int block_id, int selector_id)
+char* Engine::getSelectorByBlockIdBySelectorId(int block_id, int selector_id) //
 {
-	Block* block = getBlockByBlockId(block_id);
-	if (block == nullptr) return 0;
+	if (selector_id <= 0) return nullptr;
+	Block* block = this->getBlockByBlockId(block_id);
+	if (block == nullptr) return nullptr;
 	LLNode* list = block->selectors.head;
-	while (selector_id-- > 0)
+	while (--selector_id > 0)
 	{
 		if (list == nullptr) return nullptr;
 		list = list->next;
 	}
+	if (list == nullptr) return nullptr;
 	return list->Data.GetName();
 }
-char* Engine::getContentByBlockId(int block_id, const char* nameOfAttribute)
+char* Engine::getContentByBlockIdByAttName(int block_id, const char* nameOfAttribute) //
 {
 	if (nameOfAttribute == nullptr) return nullptr;
-	Block* block = getBlockByBlockId(block_id);
-	LLNode* list = block->attributes.head;
-	while (list != nullptr)
-	{
-		char* name = list->Data.GetName();
-		if (name == nullptr) continue;
-		if (strcmp(name, nameOfAttribute) == 0)
-		{
-			return list->Data.GetContent();
-		}
-		list = list->next;
-	}
-	return nullptr;
+	Block* block = this->getBlockByBlockId(block_id);
+	LList* list = &(block->attributes);
+	LLNode* node = this->findNodeWithName(list, nameOfAttribute);
+	if (node == nullptr) return nullptr;
+	return node->Data.GetContent();
 }
-int Engine::getNumberOfAttributesNamed(const char* nameOfAttribute)
+int Engine::getNumberOfCSSDataNamed(const char* name, Type type) //
 {
-	if (nameOfAttribute == nullptr) return 0;
+	if (name == nullptr) return 0;
 	DLLNode* ptr = this->DLList.head;
-	if (ptr == nullptr) return 0;
 	int n = 0;
-	for (; ptr->next != nullptr; ptr = ptr->next)
+	for (; ptr != nullptr; ptr = ptr->next)
 	{
 		for (int i = 0; i < NodeSize; i++)
 		{
-			LLNode* attributes = ptr->Data[i].attributes.head;
-			for (; attributes != nullptr; attributes = attributes->next)
+			if (ptr->flag[i] == false) continue;
+			LLNode* node = nullptr;
+			if (type == selector) node = ptr->Data[i].selectors.head;
+			else if (type == attribute) node = ptr->Data[i].attributes.head;
+			for (; node != nullptr; node = node->next)
 			{
-				char* name = attributes->Data.GetName();
-				if (name == nullptr) break;
-				if (strcmp(name, nameOfAttribute) == 0) n++;
+				char* dataName = node->Data.GetName();
+				if (dataName != nullptr
+				&& strcmp(dataName, name) == 0) n++;
 			}
 		}
 	}
-	return 0;
-}
-int Engine::getNumberOfSelectorsNamed(const char* nameOfSelector)
-{
-	if (nameOfSelector == nullptr) return 0;
-	DLLNode* ptr = this->DLList.head;
-	if (ptr == nullptr) return 0;
-	int n = 0;
-	for (; ptr->next != nullptr; ptr = ptr->next)
-	{
-		for (int i = 0; i < NodeSize; i++)
-		{
-			LLNode* attributes = ptr->Data[i].attributes.head;
-			for (; attributes != nullptr; attributes = attributes->next)
-			{
-				char* name = attributes->Data.GetName();
-				if (name == nullptr) break;
-				if (strcmp(name, nameOfSelector) == 0) n++;
-			}
-		}
-	}
-	return 0;
+	return n;
 }
 char* Engine::getContentOfAttributeBySelector(const char* nameOfSelector, const char* nameOfAttribute)
 {
@@ -189,25 +186,26 @@ char* Engine::getContentOfAttributeBySelector(const char* nameOfSelector, const 
 	for (; ptr->next != nullptr; ptr = ptr->next)
 	{
 	}
-	for (; ptr->prev != nullptr; ptr = ptr->prev)
+	for (; ptr != nullptr; ptr = ptr->prev)
 	{
 		for (int i = NodeSize - 1; i >= 0; i--)
 		{
+			if (ptr->flag[i] == false) continue;
 			LLNode* selectors = ptr->Data[i].selectors.head;
 			for (; selectors != nullptr; selectors = selectors->next)
 			{
 				char* name = selectors->Data.GetName();
-				if (name == nullptr) break;
-				if (strcmp(name, nameOfSelector) == 0)
+				if (name != nullptr
+				&& strcmp(name, nameOfSelector) == 0)
 				{
 					LLNode* attributes = ptr->Data[i].attributes.head;
 					for (; attributes != nullptr; attributes = attributes->next)
 					{
-						char* content = attributes->Data.GetContent();
-						if (content == nullptr) break;
-						if (strcmp(content, nameOfAttribute) == 0)
+						char* name = attributes->Data.GetName();
+						if (name != nullptr
+						&& strcmp(name, nameOfAttribute) == 0)
 						{
-							return content;
+							return attributes->Data.GetContent();
 						}
 					}
 				}
@@ -266,27 +264,63 @@ void Engine::printCommand(String* arg)
 		<< arg[THIRD];
 }
 
-void Engine::handleCommand(String* arg)
+void Engine::handleCommand(String* arg) // -,-,-
 {
 	if (arg == nullptr) return;
-	if (arg[FIRST].isNumber()) // i,X,X
+	int result = -1;
+	char* resultStr = nullptr;
+	if (arg[FIRST].isNumber()) // i,-,-
 	{
 		int blockNumber = strToNumber(arg[FIRST]);
-		if (arg[SECOND] == COMMAND_SELECTOR_SIGN) // i,S,X
+		if (arg[SECOND] == COMMAND_SELECTOR_SIGN) // i,S,-
 		{
 			if (arg[THIRD] == COMMAND_ASK_SIGN) // i,S,?
 			{
-				cout << getNumberOfSelectorsByBlockId(blockNumber) << EOL;
+				result = getNumberOfSelectorsByBlockId(blockNumber);
+				if (result <= 0) result = -1;
+			}
+			else // i,S,X
+			{
+				int selectorNumber = strToNumber(arg[THIRD]);
+				resultStr = getSelectorByBlockIdBySelectorId(blockNumber,selectorNumber);
 			}
 		}
-		else if (arg[SECOND] == COMMAND_ATTRIBUTE_SIGN) // i,A,X
+		else if (arg[SECOND] == COMMAND_ATTRIBUTE_SIGN) // i,A,-
 		{
 			if (arg[THIRD] == COMMAND_ASK_SIGN) // i,A,?
 			{
-				cout << getNumberOfAttributesByBlockId(blockNumber) << EOL;
+				result = getNumberOfAttributesByBlockId(blockNumber);
+				if (result <= 0) result = -1;
+			}
+			else
+			{
+				resultStr = getContentByBlockIdByAttName(blockNumber, arg[THIRD].getStr());
 			}
 		}
 	}
+	else
+	{
+		if (arg[SECOND] == COMMAND_ATTRIBUTE_SIGN) // n,A,?
+		{
+			result = getNumberOfCSSDataNamed(arg[FIRST].getStr(), attribute);
+		}
+		else if (arg[SECOND] == COMMAND_SELECTOR_SIGN) // z,S,?
+		{
+			result = getNumberOfCSSDataNamed(arg[FIRST].getStr(), selector);
+		}
+		else if (arg[SECOND] == COMMAND_E_SIGN) // z,E,n
+		{
+			resultStr = getContentOfAttributeBySelector(arg[FIRST].getStr(), arg[THIRD].getStr());
+		}
+	}
+
+	if (result == -1 && resultStr == nullptr) return;
+
+	this->printCommand(arg);
+	cout << RESULT_EQUAL;
+	if (result != -1) cout << result;
+	if (resultStr != nullptr) cout << resultStr;
+	cout << EOL;
 }
 
 enum mode
@@ -430,6 +464,8 @@ void Engine::getInput()
 					*currentArg = *currentArg + stringToAppend;
 				}
 				this->handleCommand(arg);
+				text.clear();
+				continue;
 			}
 			else if (ch == EOL)
 			{
