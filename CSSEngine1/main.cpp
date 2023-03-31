@@ -10,11 +10,10 @@ int main()
 {
 	Engine engine;
 	engine.getInput();
+	//String b = "abkj";
+	//b = b + "lc";
+	//cout << a << " " << b << " " << (a == b);
 
-	String a = "abkjlc";
-	a = a + "ab";
-	a = a + "abhfghfghfhjfghgfhjfgkhj";
-	cout << a;
 	//engine.getInput();
 	//b.head->Data[0].addCSS("margin", "2px");
 

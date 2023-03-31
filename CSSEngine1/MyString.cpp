@@ -1,7 +1,21 @@
 #include "MyString.h"
 #define MIN_ASCII '!'
 #define MAX_ASCII '~'
+#define ZERO '0'
+#define NINE '9'
 #define EOS '\0'
+
+bool String::isNumber()
+{
+	if (this->str == nullptr) return 0;
+	int l = 0;
+	while (this->str[l] != EOS)
+	{
+		if (this->str[l] >= ZERO && this->str[l++] <= NINE) {}
+		else return false;
+	}
+	return true;
+}
 bool String::hasAChar()
 {
 	if (this->str == nullptr) return 0;
@@ -65,7 +79,7 @@ String::String(const char* str)
 {
 	this->str = nullptr;
 	this->blocks = 0;
-	this->SetStr(str);
+	this->setStr(str);
 }
 String& String::operator=(const String& right)
 {
@@ -73,7 +87,7 @@ String& String::operator=(const String& right)
 	this->blocks = right.blocks;
 	return *this;
 }
-void String::SetStr(const char* str)
+void String::setStr(const char* str)
 {
 	int l;
 	if (str != nullptr)
@@ -85,15 +99,27 @@ void String::SetStr(const char* str)
 			this->str[i] = str[i];
 	}
 }
-char* String::GetStr() const
+char* String::getStr() const
 {
 	return this->str;
+}
+bool String::operator==(const String& right)
+{
+	if (this->str == nullptr || right.str == nullptr) return false;
+	int thisLength = this->getLength();
+	int rightLength = right.getLength();
+	if (thisLength != rightLength) return false;
+	for (int i = 0; i < thisLength; i++)
+	{
+		if (this->str[i] != right.str[i]) return false;
+	}
+	return true;
 }
 String& String::operator+(const String& right)
 {
 	if (this->str == nullptr)
 	{
-		this->SetStr(right.str);
+		this->setStr(right.str);
 		return *this;
 	}
 	int a = this->getLength(), b = right.getLength();
@@ -117,7 +143,7 @@ String& String::operator+(const char* right)
 {
 	if (this->str == nullptr)
 	{
-		this->SetStr(right);
+		this->setStr(right);
 		return *this;
 	}
 	int a = this->getLength(), b = 0;
@@ -146,5 +172,5 @@ String::~String()
 	}
 }
 std::ostream& operator<<(std::ostream& os, const String& string) {
-	return os << string.GetStr();
+	return os << string.getStr();
 }

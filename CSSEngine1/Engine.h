@@ -1,7 +1,7 @@
 #pragma once
 #include "Structures.h"
-
-#define END_LINE '\n'
+#include "MyString.h"
+#define EOL '\n'
 #define SELECTOR_SEPARATOR ','
 #define SPACE ' '
 #define BLOCK_OPEN '{'
@@ -12,6 +12,11 @@
 #define COMMAND_END '*'
 #define COMMAND_BEGIN_STR "???"
 #define COMMAND_END_STR "***"
+#define COMMAND_SELECTOR_SIGN "S"
+#define COMMAND_ATTRIBUTE_SIGN "A"
+#define COMMAND_ASK_SIGN "?"
+#define RESULT_EQUAL "=="
+
 #define EOS '\0'
 
 class Engine
@@ -40,5 +45,7 @@ public:
 	int removeAttributeByBlockId(int block_id, const char* nameOfAttribute);
 	void getInput();
 	void handleCommand(String* arg);
+	int strToNumber(String& str);
+	void printCommand(String* arg);
 };
 

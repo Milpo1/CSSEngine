@@ -16,6 +16,7 @@ DLLNode* Engine::findFirstFreeNode()
 		if (ptr->next == nullptr)
 		{
 			ptr->next = new DLLNode;
+			ptr->next->prev = ptr;
 		}
 		ptr = ptr->next;
 		firstFreeBlock = ptr->isFull();
@@ -41,7 +42,7 @@ bool Engine::addCSS(int block_id, const char* name, const char* content)
 		cout << "Error: addCSS(" << "block_id: " << block_id;
 		return false;
 	}
-	block_id = block_id-1 % NodeSize;
+	block_id = (block_id-1) % NodeSize;
 	node->addCSS(block_id, name, content);
 	return true;
 }
@@ -62,7 +63,7 @@ bool Engine::addBlock(const Block& block)
 DLLNode* Engine::getNodeByBlockId(int block_id)
 {
 	if (block_id <= 0) return nullptr;
-	int node_id = block_id-1 / NodeSize;
+	int node_id = (block_id-1) / NodeSize;
 	if (this->DLList.head == nullptr) this->DLList.initHead();
 	DLLNode* ptr = this->DLList.head;
 	if (ptr == nullptr) return nullptr;
@@ -70,8 +71,7 @@ DLLNode* Engine::getNodeByBlockId(int block_id)
 	{
 		if (ptr->next == nullptr)
 		{
-			ptr->next = new DLLNode;
-			ptr->next->prev = ptr;
+			return nullptr;
 		}
 		ptr = ptr->next;
 	}
@@ -81,7 +81,8 @@ Block* Engine::getBlockByBlockId(int block_id)
 {
 	DLLNode* node = getNodeByBlockId(block_id);
 	if (node == nullptr) return nullptr;
-	block_id = block_id-1 % NodeSize;
+	block_id = (block_id-1) % NodeSize;
+	if (node->flag[block_id] == false) return nullptr;
 	Block* block = &(node->Data[block_id]);
 	return block;
 }
@@ -100,16 +101,19 @@ int Engine::getNumberOfBlocks()
 int Engine::getNumberOfSelectorsByBlockId(int block_id)
 {
 	Block* block = getBlockByBlockId(block_id);
+	if (block == nullptr) return 0;
 	return block->selectors.getLength();
 }
 int Engine::getNumberOfAttributesByBlockId(int block_id)
 {
 	Block* block = getBlockByBlockId(block_id);
+	if (block == nullptr) return 0;
 	return block->attributes.getLength();
 }
 char* Engine::getSelectorByBlockId(int block_id, int selector_id)
 {
 	Block* block = getBlockByBlockId(block_id);
+	if (block == nullptr) return 0;
 	LLNode* list = block->selectors.head;
 	while (selector_id-- > 0)
 	{
@@ -224,9 +228,65 @@ void freePtr(T** ptr)
 		}
 	}
 }
+/*int pow(int a, int n)
+{
+	if (a == 0) return 0;
+	if (a == 1) return 1;
+	if (n < 0) return 0;
+	if (a == 2) return a << n;
+	int pow = a;
+	for (int i = 1; i < n; i++) pow *= a;
+}*/
+int Engine::strToNumber(String& str)
+{
+	int sum = -1;
+	if (str.isNumber())
+	{
+		sum = 0;
+		int l = str.getLength()-1;
+		char* strTab = str.getStr();
+		for (int i = 1; i <= l; i++)
+		{
+			sum += (strTab[i-1]-'0') * pow(10, l - i);
+		}
+		if (sum < 0) return -1;
+	}
+	return sum;
+}
+enum argument
+{
+	FIRST,
+	SECOND,
+	THIRD
+};
+void Engine::printCommand(String* arg)
+{
+	cout << arg[FIRST] << SELECTOR_SEPARATOR
+		<< arg[SECOND] << SELECTOR_SEPARATOR
+		<< arg[THIRD];
+}
+
 void Engine::handleCommand(String* arg)
 {
-
+	if (arg == nullptr) return;
+	if (arg[FIRST].isNumber()) // i,X,X
+	{
+		int blockNumber = strToNumber(arg[FIRST]);
+		if (arg[SECOND] == COMMAND_SELECTOR_SIGN) // i,S,X
+		{
+			if (arg[THIRD] == COMMAND_ASK_SIGN) // i,S,?
+			{
+				cout << getNumberOfSelectorsByBlockId(blockNumber) << EOL;
+			}
+		}
+		else if (arg[SECOND] == COMMAND_ATTRIBUTE_SIGN) // i,A,X
+		{
+			if (arg[THIRD] == COMMAND_ASK_SIGN) // i,A,?
+			{
+				cout << getNumberOfAttributesByBlockId(blockNumber) << EOL;
+			}
+		}
+	}
 }
 
 enum mode
@@ -254,7 +314,7 @@ void Engine::getInput()
 	char ch;
 	while (scanf_s("%c", &ch) != EOF)
 	{
-		if (ch == END_LINE && mode != SEARCH_COMMANDS) continue;
+		if (ch == EOL && mode != SEARCH_COMMANDS) continue;
 		if (mode == SEARCH_SELECTORS)
 		{
 			if (ch == SPACE) continue;
@@ -267,14 +327,14 @@ void Engine::getInput()
 				}
 				if (text.getLength() > 1)
 				{
-					tempBlock->addCSS(text.GetStr());
+					tempBlock->addCSS(text.getStr());
 				}
 				text.clear();
 				continue;
 			}
 			if (ch == COMMAND_BEGIN)
 			{
-				if (text.GetStr() != nullptr && strcmp(text.GetStr(), COMMAND_BEGIN_STR) == 0)
+				if (text.getStr() != nullptr && text == COMMAND_BEGIN_STR)
 				{
 					mode = SEARCH_COMMANDS;
 					text.clear();
@@ -304,7 +364,7 @@ void Engine::getInput()
 			if (ch == ATTRIBUTE_COLON)
 			{
 				if (text.getLength() <= 1) continue;
-				tempData = new CSSData(text.GetStr());
+				tempData = new CSSData(text.getStr());
 				mode = SEARCH_ATT_CONTENT;
 				text.clear();
 				continue;
@@ -318,7 +378,7 @@ void Engine::getInput()
 			{
 				if (tempData == nullptr && ch != BLOCK_CLOSE) continue;
 				mode = SEARCH_ATT_NAMES;
-				tempData->SetContent(text.GetStr());
+				tempData->SetContent(text.getStr());
 				tempBlock->addCSS(*tempData);
 				freePtr<CSSData>(&tempData);
 				text.clear();
@@ -339,25 +399,25 @@ void Engine::getInput()
 		{
 			if (ch == COMMAND_END)
 			{
-				if (strcmp(text.GetStr(), COMMAND_END_STR) == 0)
+				if (text == COMMAND_END_STR)
 				{
 					mode = SEARCH_SELECTORS;
 					text.clear();
 					continue;
 				}
 			}
-			if (ch == COMMAND_BEGIN)
+			int l = text.getLength();
+			if (ch == COMMAND_BEGIN && l <= 1)
 			{
-				cout << getNumberOfBlocks() << END_LINE;
+				cout << getNumberOfBlocks() << EOL;
 				text.clear();
 				continue;
 			}
-			int l = text.getLength();
-			if (ch == END_LINE && l >= 1)
+			if (ch == EOL && l >= 1)
 			{
-				String arg[3] = { "","","" };
+				String arg[] = { "","","" };
 				String* currentArg=arg;
-				char* textStr = text.GetStr();
+				char* textStr = text.getStr();
 				for (int i = 0; i < l; i++)
 				{
 					if (textStr[i] == SELECTOR_SEPARATOR)
@@ -366,18 +426,18 @@ void Engine::getInput()
 						continue;
 					}
 					if (textStr == nullptr) break;
-					char stringToAppend[2] = { textStr[i], EOS };
+					char stringToAppend[] = { textStr[i], EOS };
 					*currentArg = *currentArg + stringToAppend;
 				}
 				this->handleCommand(arg);
 			}
-			else if (ch == END_LINE)
+			else if (ch == EOL)
 			{
 				continue;
 			}
 		}
 
-		char stringToAppend[2] = { ch, EOS };
+		char stringToAppend[] = { ch, EOS };
 		text = text + stringToAppend;
 	}
 	if (tempBlock != nullptr) delete tempBlock;

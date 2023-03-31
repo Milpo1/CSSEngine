@@ -16,10 +16,12 @@ public:
 	int getBlocks() const;
 	void clear();
 	void allocate(int length);
-	void SetStr(const char* str);
-	char* GetStr() const;	
+	void setStr(const char* str);
+	char* getStr() const;	
+	bool isNumber();
 	//Checks if the string contains an alphanumeric character
 	bool hasAChar();
+	bool operator==(const String& right);
 	String& operator=(const String& right);
 	String& operator+(const String& right);
 	String& operator+(const char* right);
