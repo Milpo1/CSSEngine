@@ -33,7 +33,7 @@ Block* Engine::findFirstFreeBlock(DLLNode* ptr)
 	if (ptr == nullptr)
 	{
 		DLLNode* ptr = this->findFirstFreeNode();
-		
+
 	}
 	if (ptr == nullptr) return nullptr;
 	int firstFreeBlock = ptr->isFull();
@@ -47,7 +47,7 @@ LLNode* Engine::findNodeWithName(LList* list, const char* str)
 	{
 		char* name = node->Data.GetName();
 		if (name != nullptr
-		&& strcmp(name, str) == 0)
+			&& strcmp(name, str) == 0)
 		{
 			return node;
 		}
@@ -64,7 +64,7 @@ bool Engine::addCSS(int block_id, const char* name, const char* content)
 		cout << "Error: addCSS(" << "block_id: " << block_id;
 		return false;
 	}
-	block_id = (block_id-1) % NodeSize;
+	block_id = (block_id - 1) % NodeSize;
 	node->addCSS(block_id, name, content);
 	return true;
 }
@@ -85,7 +85,7 @@ bool Engine::addBlock(const Block& block)
 DLLNode* Engine::getNodeByBlockId(int block_id)
 {
 	if (block_id <= 0) return nullptr;
-	int node_id = (block_id-1) / NodeSize;
+	int node_id = (block_id - 1) / NodeSize;
 	if (this->DLList.head == nullptr) this->DLList.initHead();
 	DLLNode* ptr = this->DLList.head;
 	if (ptr == nullptr) return nullptr;
@@ -103,7 +103,7 @@ Block* Engine::getBlockByBlockId(int block_id)
 {
 	DLLNode* node = getNodeByBlockId(block_id);
 	if (node == nullptr) return nullptr;
-	block_id = (block_id-1) % NodeSize;
+	block_id = (block_id - 1) % NodeSize;
 	if (node->flag[block_id] == false) return nullptr;
 	Block* block = &(node->Data[block_id]);
 	return block;
@@ -172,7 +172,7 @@ int Engine::getNumberOfCSSDataNamed(const char* name, Type type) //
 			{
 				char* dataName = node->Data.GetName();
 				if (dataName != nullptr
-				&& strcmp(dataName, name) == 0) n++;
+					&& strcmp(dataName, name) == 0) n++;
 			}
 		}
 	}
@@ -196,14 +196,14 @@ char* Engine::getContentOfAttributeBySelector(const char* nameOfSelector, const 
 			{
 				char* name = selectors->Data.GetName();
 				if (name != nullptr
-				&& strcmp(name, nameOfSelector) == 0)
+					&& strcmp(name, nameOfSelector) == 0)
 				{
 					LLNode* attributes = ptr->Data[i].attributes.head;
 					for (; attributes != nullptr; attributes = attributes->next)
 					{
 						char* name = attributes->Data.GetName();
 						if (name != nullptr
-						&& strcmp(name, nameOfAttribute) == 0)
+							&& strcmp(name, nameOfAttribute) == 0)
 						{
 							return attributes->Data.GetContent();
 						}
@@ -221,7 +221,7 @@ void freePtr(T** ptr)
 	{
 		if (*ptr != nullptr)
 		{
-			delete *ptr;
+			delete* ptr;
 			*ptr = nullptr;
 		}
 	}
@@ -241,11 +241,11 @@ int Engine::strToNumber(String& str)
 	if (str.isNumber())
 	{
 		sum = 0;
-		int l = str.getLength()-1;
+		int l = str.getLength() - 1;
 		char* strTab = str.getStr();
 		for (int i = 1; i <= l; i++)
 		{
-			sum += (strTab[i-1]-'0') * pow(10, l - i);
+			sum += (strTab[i - 1] - '0') * pow(10, l - i);
 		}
 		if (sum < 0) return -1;
 	}
@@ -282,7 +282,7 @@ void Engine::handleCommand(String* arg) // -,-,-
 			else // i,S,X
 			{
 				int selectorNumber = strToNumber(arg[THIRD]);
-				resultStr = getSelectorByBlockIdBySelectorId(blockNumber,selectorNumber);
+				resultStr = getSelectorByBlockIdBySelectorId(blockNumber, selectorNumber);
 			}
 		}
 		else if (arg[SECOND] == COMMAND_ATTRIBUTE_SIGN) // i,A,-
@@ -336,11 +336,11 @@ void Engine::getInput()
 	//TODO
 	// Odrzucanie powrotzen przy dodawaniu CSSdata do bloku
 
-	int mode = SEARCH_SELECTORS; 
-					// 0 - looking for selectors
-					// 1 - looking for attribute names
-					// 2 - looking for attribute content
-					// 3 - looking for commands
+	int mode = SEARCH_SELECTORS;
+	// 0 - looking for selectors
+	// 1 - looking for attribute names
+	// 2 - looking for attribute content
+	// 3 - looking for commands
 
 	Block* tempBlock = new Block;
 	CSSData* tempData = nullptr;
@@ -404,7 +404,7 @@ void Engine::getInput()
 				continue;
 			}
 			if (ch == SPACE && !text.hasAChar()) continue;
-		}	
+		}
 		else if (mode == SEARCH_ATT_CONTENT)
 		{
 			if (ch == BLOCK_OPEN) continue;
@@ -425,7 +425,7 @@ void Engine::getInput()
 					tempBlock = new Block;
 				}
 				continue;
-			}			
+			}
 			if (ch == SPACE && !text.hasAChar()) continue;
 
 		}
@@ -450,7 +450,7 @@ void Engine::getInput()
 			if (ch == EOL && l >= 1)
 			{
 				String arg[] = { "","","" };
-				String* currentArg=arg;
+				String* currentArg = arg;
 				char* textStr = text.getStr();
 				for (int i = 0; i < l; i++)
 				{
