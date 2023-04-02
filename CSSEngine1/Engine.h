@@ -31,7 +31,7 @@ private:
 	DLList DLList;
 	int nOfBlocks;
 public:
-	enum Type;
+	enum class Type;
 	Engine();
 	DLLNode* findFirstFreeNode();
 	Block* findFirstFreeBlock(DLLNode* ptr = nullptr);

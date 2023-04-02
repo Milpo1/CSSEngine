@@ -1,10 +1,12 @@
 #include <cstdio>
+#include <cstring>
 #include <iostream>
+#include <cmath>
 #include "Engine.h"
 #include "MyString.h"
 #define _CRT_SECURE_NO_WARNINGS
 #pragma warning(disable : 4996)
-enum Engine::Type
+enum class Engine::Type
 {
 	selector,
 	attribute
@@ -199,8 +201,8 @@ int Engine::getNumberOfCSSDataNamed(const char* name, Type type) //
 		{
 			if (ptr->flag[i] == false) continue;
 			LLNode* node = nullptr;
-			if (type == selector) node = ptr->Data[i].selectors.head;
-			else if (type == attribute) node = ptr->Data[i].attributes.head;
+			if (type == Type::selector) node = ptr->Data[i].selectors.head;
+			else if (type == Type::attribute) node = ptr->Data[i].attributes.head;
 			for (; node != nullptr; node = node->next)
 			{
 				char* dataName = node->Data.GetName();
@@ -282,6 +284,11 @@ bool Engine::removeAttributeByBlockIdByAttName(int block_id, const char* nameOfA
 		block->attributes.emptyList();
 		block->selectors.emptyList();
 		node->flag[flagId] = false;
+		this->nOfBlocks--;
+	}
+	if (node->isEmpty())
+	{
+		this->DLList.removeNode(node);
 	}
 	return true;
 }
@@ -412,11 +419,11 @@ void Engine::handleCommand(String* arg) // -,-,-
 	{
 		if (arg[SECOND] == COMMAND_ATTRIBUTE_SIGN) // n,A,?
 		{
-			result = getNumberOfCSSDataNamed(arg[FIRST].getStr(), attribute);
+			result = getNumberOfCSSDataNamed(arg[FIRST].getStr(), Type::attribute);
 		}
 		else if (arg[SECOND] == COMMAND_SELECTOR_SIGN) // z,S,?
 		{
-			result = getNumberOfCSSDataNamed(arg[FIRST].getStr(), selector);
+			result = getNumberOfCSSDataNamed(arg[FIRST].getStr(), Type::selector);
 		}
 		else if (arg[SECOND] == COMMAND_E_SIGN) // z,E,n
 		{
@@ -456,7 +463,7 @@ void Engine::getInput()
 	CSSData* tempData = nullptr;
 	String text = "";
 	char ch;
-	while (scanf_s("%c", &ch, 1) != EOF)
+	while (scanf("%c", &ch) != EOF)
 	{
 		if (ch == EOL && mode != SEARCH_COMMANDS) continue;
 		if (mode == SEARCH_SELECTORS)
@@ -569,6 +576,7 @@ void Engine::getInput()
 				{
 					if (textStr[i] == SELECTOR_SEPARATOR)
 					{
+
 						currentArg++;
 						continue;
 					}
