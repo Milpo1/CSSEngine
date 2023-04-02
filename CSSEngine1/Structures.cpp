@@ -229,8 +229,8 @@ LLNode::~LLNode()
 	if (this->next != nullptr)
 	{
 		delete this->next;
-		this->next = nullptr;
 	}
+	this->next = nullptr;
 }
 
 DLList::DLList()
@@ -255,6 +255,7 @@ void DLList::removeNode(DLLNode* node)
 		node->next = nullptr;
 		node->prev = nullptr;
 		delete node;
+		if (this->head == node) this->head = nullptr;
 	}
 }
 DLList::~DLList()
@@ -295,6 +296,7 @@ DLLNode::~DLLNode()
 	{
 		delete this->next;
 	}
+	this->next = nullptr;
 }
 void DLLNode::addCSS(int block_id, const char* name, const char* content)
 {

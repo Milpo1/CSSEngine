@@ -2,6 +2,7 @@
 #include "Structures.h"
 #include "MyString.h"
 #define EOL '\n'
+#define TAB_KEY '\t'
 #define SELECTOR_SEPARATOR ','
 #define SPACE ' '
 #define BLOCK_OPEN '{'
@@ -48,8 +49,8 @@ public:
 	char* getContentByBlockIdByAttName(int block_id, const char* nameOfAttribute);
 	int getNumberOfCSSDataNamed(const char* name, Type type);
 	char* getContentOfAttributeBySelector(const char* nameOfSelector, const char* nameOfAttribute);
-	bool removeBlockByBlockId(int block_id);
-	bool removeAttributeByBlockIdByAttName(int block_id, const char* nameOfAttribute);
+	int removeBlockByBlockId(int block_id);
+	int removeAttributeByBlockIdByAttName(int block_id, const char* nameOfAttribute);
 	void handleCommand(String* arg);
 	int strToNumber(String& str);
 	void printCommand(String* arg);

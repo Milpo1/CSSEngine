@@ -63,18 +63,6 @@ LLNode* Engine::findNodeWithName(LList* list, const char* str, LLNode** prev)
 	return nullptr;
 
 }
-/*bool Engine::addCSS(int block_id, const char* name, const char* content)
-{
-	DLLNode* node = getNodeByBlockId(block_id);
-	if (node == nullptr)
-	{
-		cout << "Error: addCSS(" << "block_id: " << block_id;
-		return false;
-	}
-	block_id = (block_id - 1) % NodeSize;
-	node->addCSS(block_id, name, content);
-	return true;
-}*/
 bool Engine::addBlock(const Block& block)
 {
 	DLLNode* node = findFirstFreeNode();
@@ -89,36 +77,8 @@ bool Engine::addBlock(const Block& block)
 	}
 	return false;
 }
-/*DLLNode* Engine::getNodeByBlockId(int block_id)
-{
-	if (block_id <= 0) return nullptr;
-	DLLNode* node = this->DLList.head;
-	while (node != nullptr)
-	{
-		for (int i = 0; i < NodeSize; i++)
-		{
-			if (node->flag[i]) block_id--;
-			if (block_id == 0) return node;
-		}
-		node = node->next;
-	}
-	return nullptr;
-}*/
 Block* Engine::getBlockByBlockId(int block_id, DLLNode** ptrToUpdate, int* interCounter)
 {
-	/*if (block_id <= 0) return nullptr;
-	DLLNode* node = this->DLList.head;
-	while (node != nullptr)
-	{
-		for (int i = 0; i < NodeSize; i++)
-		{
-			if (node->flag[i]) block_id--;
-			if (block_id == 0) return &(node->Data[i]);
-		}
-		node = node->next;
-	}
-	return nullptr;*/
-
 	if (block_id <= 0) return nullptr;
 	DLLNode* node = this->DLList.head;
 	Block* block = nullptr;
@@ -131,7 +91,6 @@ Block* Engine::getBlockByBlockId(int block_id, DLLNode** ptrToUpdate, int* inter
 			if (block_id == 0)
 			{
 				block = &(node->Data[i]);
-				//node->flag[i] = false;
 				break;
 			}
 		}
@@ -249,12 +208,12 @@ char* Engine::getContentOfAttributeBySelector(const char* nameOfSelector, const 
 	}
 	return nullptr;
 }
-bool Engine::removeBlockByBlockId(int block_id)
+int Engine::removeBlockByBlockId(int block_id)
 {
 	DLLNode* node;
 	int flagId;
 	Block* block = getBlockByBlockId(block_id, &node, &flagId);
-	if (block == nullptr || node == nullptr) return false;
+	if (block == nullptr || node == nullptr) return -1;
 	node->flag[flagId] = false;
 	block->selectors.emptyList();
 	block->attributes.emptyList();
@@ -263,17 +222,17 @@ bool Engine::removeBlockByBlockId(int block_id)
 	{
 		this->DLList.removeNode(node);
 	}
-	return true;
+	return 1;
 }
-bool Engine::removeAttributeByBlockIdByAttName(int block_id, const char* nameOfAttribute)
+int Engine::removeAttributeByBlockIdByAttName(int block_id, const char* nameOfAttribute)
 {
 	DLLNode* node;
 	int flagId;
 	Block* block = getBlockByBlockId(block_id, &node, &flagId);
-	if (block == nullptr || node == nullptr) return false;
+	if (block == nullptr || node == nullptr) return -1;
 	LLNode* prevAtt;
 	LLNode* attListNode = findNodeWithName(&(block->attributes), nameOfAttribute, &prevAtt);
-	if (attListNode == nullptr) return false;
+	if (attListNode == nullptr) return -1;
 	if (prevAtt == attListNode) prevAtt = nullptr;
 	if (prevAtt != nullptr) prevAtt->next = attListNode->next;
 	else block->attributes.head = attListNode->next;
@@ -290,7 +249,7 @@ bool Engine::removeAttributeByBlockIdByAttName(int block_id, const char* nameOfA
 	{
 		this->DLList.removeNode(node);
 	}
-	return true;
+	return 1;
 }
 
 
@@ -465,6 +424,7 @@ void Engine::getInput()
 	char ch;
 	while (scanf("%c", &ch) != EOF)
 	{
+	    if (ch == '\t') continue;
 		if (ch == EOL && mode != SEARCH_COMMANDS) continue;
 		if (mode == SEARCH_SELECTORS)
 		{
@@ -515,10 +475,7 @@ void Engine::getInput()
 			if (ch == ATTRIBUTE_COLON)
 			{
 				if (text.getLength() <= 1) continue;
-				//if (findNodeWithName(&(tempBlock->attributes), text.getStr())
-				//{
 				tempData = new CSSData(text.getStr());
-				//}
 				mode = SEARCH_ATT_CONTENT;
 				text.clear();
 				continue;
@@ -576,7 +533,6 @@ void Engine::getInput()
 				{
 					if (textStr[i] == SELECTOR_SEPARATOR)
 					{
-
 						currentArg++;
 						continue;
 					}
