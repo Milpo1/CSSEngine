@@ -35,7 +35,7 @@ public:
 	enum class Type;
 	Engine();
 	DLLNode* findFirstFreeNode();
-	Block* findFirstFreeBlock(DLLNode* ptr = nullptr);
+	Block* findFirstFreeBlock(DLLNode** ptr = nullptr);
 	DLLNode* getNodeByBlockId(int block_id);
 	Block* getBlockByBlockId(int block_id, DLLNode** ptrToUpdate = nullptr, int* interCounter = nullptr);
 	LLNode* findNodeWithName(LList* list, const char* str, LLNode** prev = nullptr);

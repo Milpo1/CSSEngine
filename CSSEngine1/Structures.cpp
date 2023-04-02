@@ -120,12 +120,7 @@ void Block::printBlock()
 void Block::addCSS(const char* name, const char* content)
 {
 	CSSData tmp(name, content);
-	if (content == nullptr)
-	{
-		this->selectors.addAtEnd(tmp);
-		return;
-	}
-	this->attributes.addAtEnd(tmp);
+	this->addCSS(tmp);
 }
 void Block::addCSS(const CSSData& structure)
 {

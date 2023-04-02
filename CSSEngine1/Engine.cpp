@@ -15,7 +15,7 @@ Engine::Engine()
 {
 	this->nOfBlocks = 0;
 }
-DLLNode* Engine::findFirstFreeNode()
+Block* Engine::findFirstFreeBlock(DLLNode** ptrToUpdate)
 {
 	if (this->DLList.head == nullptr) this->DLList.initHead();
 	DLLNode* ptr = this->DLList.head;
@@ -31,16 +31,8 @@ DLLNode* Engine::findFirstFreeNode()
 		ptr = ptr->next;
 		firstFreeBlock = ptr->isFull();
 	}
-	return ptr;
-}
-Block* Engine::findFirstFreeBlock(DLLNode* ptr)
-{
-	if (ptr == nullptr)
-	{
-		DLLNode* ptr = this->findFirstFreeNode();
-	}
 	if (ptr == nullptr) return nullptr;
-	int firstFreeBlock = ptr->isFull();
+	if (ptrToUpdate != nullptr) *ptrToUpdate = ptr;
 	return &(ptr->Data[firstFreeBlock]);
 
 }
@@ -65,8 +57,8 @@ LLNode* Engine::findNodeWithName(LList* list, const char* str, LLNode** prev)
 }
 bool Engine::addBlock(const Block& block)
 {
-	DLLNode* node = findFirstFreeNode();
-	Block* firstFree = findFirstFreeBlock(node);
+	DLLNode* node;
+	Block* firstFree = findFirstFreeBlock(&node);
 	int cellNumber = node->isFull();
 	if (firstFree != nullptr)
 	{
@@ -424,7 +416,7 @@ void Engine::getInput()
 	char ch;
 	while (scanf("%c", &ch) != EOF)
 	{
-	    if (ch == '\t') continue;
+		if (ch == '\t') continue;
 		if (ch == EOL && mode != SEARCH_COMMANDS) continue;
 		if (mode == SEARCH_SELECTORS)
 		{
