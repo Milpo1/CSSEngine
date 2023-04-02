@@ -55,5 +55,5 @@ public:
 	void printCommand(String* arg);
 	void getInput();
 };
-	
+
 

@@ -20,7 +20,7 @@ bool String::hasAChar()
 {
 	if (this->str == nullptr) return 0;
 	int l = 0;
-	while (this->str[l] != EOS) 
+	while (this->str[l] != EOS)
 	{
 		if (this->str[l] >= MIN_ASCII && this->str[l++] <= MAX_ASCII) return true;
 	}
@@ -127,7 +127,7 @@ String& String::operator+(const String& right)
 	{
 		for (int i = 0; i < b; i++)
 		{
-			this->str[i+a-1] = right.str[i];
+			this->str[i + a - 1] = right.str[i];
 		}
 		return *this;
 	}

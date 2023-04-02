@@ -5,9 +5,9 @@ using namespace std;
 #define NodeSize 8
 
 class CSSData
-{	
+{
 private:
-	char* name; 
+	char* name;
 	char* content;
 public:
 	char* GetName() const;
@@ -31,6 +31,7 @@ public:
 	LLNode* next;
 	LLNode();
 	LLNode(const CSSData& structure);
+	void letItGo();
 	~LLNode();
 };
 class LList
@@ -70,6 +71,7 @@ public:
 	bool isEmpty();
 	int isFull();
 	DLLNode();
+	~DLLNode();
 };
 class DLList : public LList
 {
@@ -77,5 +79,7 @@ public:
 	DLLNode* head;
 	void initHead();
 	void printList();
+	void removeNode(DLLNode* node);
 	DLList();
+	~DLList();
 };

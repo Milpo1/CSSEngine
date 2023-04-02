@@ -40,7 +40,7 @@ Block* Engine::findFirstFreeBlock(DLLNode* ptr)
 	if (ptr == nullptr) return nullptr;
 	int firstFreeBlock = ptr->isFull();
 	return &(ptr->Data[firstFreeBlock]);
-	
+
 }
 LLNode* Engine::findNodeWithName(LList* list, const char* str, LLNode** prev)
 {
@@ -270,7 +270,7 @@ bool Engine::removeAttributeByBlockIdByAttName(int block_id, const char* nameOfA
 	Block* block = getBlockByBlockId(block_id, &node, &flagId);
 	if (block == nullptr || node == nullptr) return false;
 	LLNode* prevAtt;
-	LLNode* attListNode = findNodeWithName(&(block->attributes),nameOfAttribute, &prevAtt);
+	LLNode* attListNode = findNodeWithName(&(block->attributes), nameOfAttribute, &prevAtt);
 	if (attListNode == nullptr) return false;
 	if (prevAtt == attListNode) prevAtt = nullptr;
 	if (prevAtt != nullptr) prevAtt->next = attListNode->next;
@@ -279,7 +279,7 @@ bool Engine::removeAttributeByBlockIdByAttName(int block_id, const char* nameOfA
 	delete attListNode;
 	if (block->attributes.getLength() == 0)
 	{
-		block->attributes.emptyList(); 
+		block->attributes.emptyList();
 		block->selectors.emptyList();
 		node->flag[flagId] = false;
 	}
@@ -358,7 +358,7 @@ void Engine::handleCommand(String* arg) // -,-,-
 	char* resultStr = nullptr;
 	if (arg[FIRST].isNumber()) // i,-,-
 	{
-		int blockId= strToNumber(arg[FIRST]);
+		int blockId = strToNumber(arg[FIRST]);
 		if (arg[SECOND] == COMMAND_SELECTOR_SIGN) // i,S,-
 		{
 			if (arg[THIRD] == COMMAND_ASK_SIGN) // i,S,?
@@ -510,7 +510,7 @@ void Engine::getInput()
 				if (text.getLength() <= 1) continue;
 				//if (findNodeWithName(&(tempBlock->attributes), text.getStr())
 				//{
-					tempData = new CSSData(text.getStr());
+				tempData = new CSSData(text.getStr());
 				//}
 				mode = SEARCH_ATT_CONTENT;
 				text.clear();

@@ -61,7 +61,7 @@ void CSSData::SetName(const char* name)
 	int l = 0;
 	while (name[l++] != '\0') {}
 	this->name = new char[l];
-	strncpy(this->name,name,l);
+	strncpy(this->name, name, l);
 }
 char* CSSData::GetContent() const
 {
@@ -118,7 +118,7 @@ void Block::printBlock()
 }
 void Block::addCSS(const char* name, const char* content)
 {
-	CSSData tmp(name,content);
+	CSSData tmp(name, content);
 	if (content == nullptr)
 	{
 		this->selectors.addAtEnd(tmp);
@@ -298,5 +298,5 @@ DLLNode::~DLLNode()
 void DLLNode::addCSS(int block_id, const char* name, const char* content)
 {
 	this->flag[block_id] = true;
-	this->Data[block_id].addCSS(name,content);
+	this->Data[block_id].addCSS(name, content);
 }
