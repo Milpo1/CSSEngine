@@ -1,6 +1,9 @@
 #include <cstdio>
+#include <iostream>
 #include "Engine.h"
 #include "MyString.h"
+#define _CRT_SECURE_NO_WARNINGS
+#pragma warning(disable : 4996)
 enum Engine::Type
 {
 	selector,
@@ -33,16 +36,17 @@ Block* Engine::findFirstFreeBlock(DLLNode* ptr)
 	if (ptr == nullptr)
 	{
 		DLLNode* ptr = this->findFirstFreeNode();
-
 	}
 	if (ptr == nullptr) return nullptr;
 	int firstFreeBlock = ptr->isFull();
 	return &(ptr->Data[firstFreeBlock]);
+	
 }
-LLNode* Engine::findNodeWithName(LList* list, const char* str)
+LLNode* Engine::findNodeWithName(LList* list, const char* str, LLNode** prev)
 {
 	if (list == nullptr || str == nullptr) return nullptr;
 	LLNode* node = list->head;
+	if (prev != nullptr) *prev = node;
 	while (node != nullptr)
 	{
 		char* name = node->Data.GetName();
@@ -51,12 +55,13 @@ LLNode* Engine::findNodeWithName(LList* list, const char* str)
 		{
 			return node;
 		}
+		if (prev != nullptr) *prev = node;
 		node = node->next;
 	}
 	return nullptr;
 
 }
-bool Engine::addCSS(int block_id, const char* name, const char* content)
+/*bool Engine::addCSS(int block_id, const char* name, const char* content)
 {
 	DLLNode* node = getNodeByBlockId(block_id);
 	if (node == nullptr)
@@ -67,7 +72,7 @@ bool Engine::addCSS(int block_id, const char* name, const char* content)
 	block_id = (block_id - 1) % NodeSize;
 	node->addCSS(block_id, name, content);
 	return true;
-}
+}*/
 bool Engine::addBlock(const Block& block)
 {
 	DLLNode* node = findFirstFreeNode();
@@ -82,30 +87,58 @@ bool Engine::addBlock(const Block& block)
 	}
 	return false;
 }
-DLLNode* Engine::getNodeByBlockId(int block_id)
+/*DLLNode* Engine::getNodeByBlockId(int block_id)
 {
 	if (block_id <= 0) return nullptr;
-	int node_id = (block_id - 1) / NodeSize;
-	if (this->DLList.head == nullptr) this->DLList.initHead();
-	DLLNode* ptr = this->DLList.head;
-	if (ptr == nullptr) return nullptr;
-	while (node_id-- > 0)
+	DLLNode* node = this->DLList.head;
+	while (node != nullptr)
 	{
-		if (ptr->next == nullptr)
+		for (int i = 0; i < NodeSize; i++)
 		{
-			return nullptr;
+			if (node->flag[i]) block_id--;
+			if (block_id == 0) return node;
 		}
-		ptr = ptr->next;
+		node = node->next;
 	}
-	return ptr;
-}
-Block* Engine::getBlockByBlockId(int block_id)
+	return nullptr;
+}*/
+Block* Engine::getBlockByBlockId(int block_id, DLLNode** ptrToUpdate, int* interCounter)
 {
-	DLLNode* node = getNodeByBlockId(block_id);
-	if (node == nullptr) return nullptr;
-	block_id = (block_id - 1) % NodeSize;
-	if (node->flag[block_id] == false) return nullptr;
-	Block* block = &(node->Data[block_id]);
+	/*if (block_id <= 0) return nullptr;
+	DLLNode* node = this->DLList.head;
+	while (node != nullptr)
+	{
+		for (int i = 0; i < NodeSize; i++)
+		{
+			if (node->flag[i]) block_id--;
+			if (block_id == 0) return &(node->Data[i]);
+		}
+		node = node->next;
+	}
+	return nullptr;*/
+
+	if (block_id <= 0) return nullptr;
+	DLLNode* node = this->DLList.head;
+	Block* block = nullptr;
+	int i = 0;
+	while (node != nullptr)
+	{
+		for (i = 0; i < NodeSize; i++)
+		{
+			if (node->flag[i]) block_id--;
+			if (block_id == 0)
+			{
+				block = &(node->Data[i]);
+				//node->flag[i] = false;
+				break;
+			}
+		}
+		if (block == nullptr) node = node->next;
+		else break;
+	}
+	if (block == nullptr || node == nullptr) return nullptr;
+	if (ptrToUpdate != nullptr) *ptrToUpdate = node;
+	if (interCounter != nullptr) *interCounter = i;
 	return block;
 }
 int Engine::getNumberOfBlocks()
@@ -214,6 +247,47 @@ char* Engine::getContentOfAttributeBySelector(const char* nameOfSelector, const 
 	}
 	return nullptr;
 }
+bool Engine::removeBlockByBlockId(int block_id)
+{
+	DLLNode* node;
+	int flagId;
+	Block* block = getBlockByBlockId(block_id, &node, &flagId);
+	if (block == nullptr || node == nullptr) return false;
+	node->flag[flagId] = false;
+	block->selectors.emptyList();
+	block->attributes.emptyList();
+	this->nOfBlocks--;
+	if (node->isEmpty())
+	{
+		this->DLList.removeNode(node);
+	}
+	return true;
+}
+bool Engine::removeAttributeByBlockIdByAttName(int block_id, const char* nameOfAttribute)
+{
+	DLLNode* node;
+	int flagId;
+	Block* block = getBlockByBlockId(block_id, &node, &flagId);
+	if (block == nullptr || node == nullptr) return false;
+	LLNode* prevAtt;
+	LLNode* attListNode = findNodeWithName(&(block->attributes),nameOfAttribute, &prevAtt);
+	if (attListNode == nullptr) return false;
+	if (prevAtt == attListNode) prevAtt = nullptr;
+	if (prevAtt != nullptr) prevAtt->next = attListNode->next;
+	else block->attributes.head = attListNode->next;
+	attListNode->next = nullptr;
+	delete attListNode;
+	if (block->attributes.getLength() == 0)
+	{
+		block->attributes.emptyList(); 
+		block->selectors.emptyList();
+		node->flag[flagId] = false;
+	}
+	return true;
+}
+
+
+
 template <class T>
 void freePtr(T** ptr)
 {
@@ -221,6 +295,19 @@ void freePtr(T** ptr)
 	{
 		if (*ptr != nullptr)
 		{
+			delete* ptr;
+			*ptr = nullptr;
+		}
+	}
+}
+void emptyBlock(Block** ptr)
+{
+	if (ptr != nullptr)
+	{
+		if (*ptr != nullptr)
+		{
+			(*ptr)->selectors.head = nullptr;
+			(*ptr)->attributes.head = nullptr;
 			delete* ptr;
 			*ptr = nullptr;
 		}
@@ -271,30 +358,53 @@ void Engine::handleCommand(String* arg) // -,-,-
 	char* resultStr = nullptr;
 	if (arg[FIRST].isNumber()) // i,-,-
 	{
-		int blockNumber = strToNumber(arg[FIRST]);
+		int blockId= strToNumber(arg[FIRST]);
 		if (arg[SECOND] == COMMAND_SELECTOR_SIGN) // i,S,-
 		{
 			if (arg[THIRD] == COMMAND_ASK_SIGN) // i,S,?
 			{
-				result = getNumberOfSelectorsByBlockId(blockNumber);
+				result = getNumberOfSelectorsByBlockId(blockId);
 				if (result <= 0) result = -1;
 			}
 			else // i,S,X
 			{
-				int selectorNumber = strToNumber(arg[THIRD]);
-				resultStr = getSelectorByBlockIdBySelectorId(blockNumber, selectorNumber);
+				int selectorId = strToNumber(arg[THIRD]);
+				resultStr = getSelectorByBlockIdBySelectorId(blockId, selectorId);
 			}
 		}
 		else if (arg[SECOND] == COMMAND_ATTRIBUTE_SIGN) // i,A,-
 		{
 			if (arg[THIRD] == COMMAND_ASK_SIGN) // i,A,?
 			{
-				result = getNumberOfAttributesByBlockId(blockNumber);
+				result = getNumberOfAttributesByBlockId(blockId);
 				if (result <= 0) result = -1;
 			}
 			else
 			{
-				resultStr = getContentByBlockIdByAttName(blockNumber, arg[THIRD].getStr());
+				resultStr = getContentByBlockIdByAttName(blockId, arg[THIRD].getStr()); //i,A,X
+			}
+		}
+		else if (arg[SECOND] == COMMAND_DELETE_SIGN) // i,D,-
+		{
+			if (arg[THIRD] == COMMAND_DELETE_ALL) // i,D,*
+			{
+				result = removeBlockByBlockId(blockId);
+				if (result == 1)
+				{
+					result = -1;
+					resultStr = new char[COMMAND_DELETE_INFO_LENGTH];
+					strncpy(resultStr, COMMAND_DELETE_INFO, COMMAND_DELETE_INFO_LENGTH);
+				}
+			}
+			else
+			{
+				result = removeAttributeByBlockIdByAttName(blockId, arg[THIRD].getStr());
+				if (result == 1)
+				{
+					result = -1;
+					resultStr = new char[COMMAND_DELETE_INFO_LENGTH];
+					strncpy(resultStr, COMMAND_DELETE_INFO, COMMAND_DELETE_INFO_LENGTH);
+				}
 			}
 		}
 	}
@@ -346,7 +456,7 @@ void Engine::getInput()
 	CSSData* tempData = nullptr;
 	String text = "";
 	char ch;
-	while (scanf_s("%c", &ch) != EOF)
+	while (scanf_s("%c", &ch, 1) != EOF)
 	{
 		if (ch == EOL && mode != SEARCH_COMMANDS) continue;
 		if (mode == SEARCH_SELECTORS)
@@ -386,7 +496,7 @@ void Engine::getInput()
 					if (tempBlock != nullptr)
 					{
 						this->addBlock(*tempBlock);
-						freePtr<Block>(&tempBlock);
+						emptyBlock(&tempBlock);////////////////////////////////////////winowajca
 						tempBlock = new Block;
 					}
 				}
@@ -398,7 +508,10 @@ void Engine::getInput()
 			if (ch == ATTRIBUTE_COLON)
 			{
 				if (text.getLength() <= 1) continue;
-				tempData = new CSSData(text.getStr());
+				//if (findNodeWithName(&(tempBlock->attributes), text.getStr())
+				//{
+					tempData = new CSSData(text.getStr());
+				//}
 				mode = SEARCH_ATT_CONTENT;
 				text.clear();
 				continue;
@@ -421,7 +534,7 @@ void Engine::getInput()
 					// END OF BLOCK
 					mode = SEARCH_SELECTORS;
 					this->addBlock(*tempBlock);
-					freePtr<Block>(&tempBlock);
+					emptyBlock(&tempBlock);
 					tempBlock = new Block;
 				}
 				continue;
@@ -443,7 +556,7 @@ void Engine::getInput()
 			int l = text.getLength();
 			if (ch == COMMAND_BEGIN && l <= 1)
 			{
-				cout << getNumberOfBlocks() << EOL;
+				cout << COMMAND_ASK_SIGN << RESULT_EQUAL << getNumberOfBlocks() << EOL;
 				text.clear();
 				continue;
 			}

@@ -16,6 +16,10 @@
 #define COMMAND_ATTRIBUTE_SIGN "A"
 #define COMMAND_E_SIGN "E"
 #define COMMAND_ASK_SIGN "?"
+#define COMMAND_DELETE_SIGN "D"
+#define COMMAND_DELETE_INFO "deleted"
+#define COMMAND_DELETE_INFO_LENGTH 8
+#define COMMAND_DELETE_ALL "*"
 #define RESULT_EQUAL " == "
 
 #define EOS '\0'
@@ -32,8 +36,8 @@ public:
 	DLLNode* findFirstFreeNode();
 	Block* findFirstFreeBlock(DLLNode* ptr = nullptr);
 	DLLNode* getNodeByBlockId(int block_id);
-	Block* getBlockByBlockId(int block_id);
-	LLNode* findNodeWithName(LList* list, const char* str);
+	Block* getBlockByBlockId(int block_id, DLLNode** ptrToUpdate = nullptr, int* interCounter = nullptr);
+	LLNode* findNodeWithName(LList* list, const char* str, LLNode** prev = nullptr);
 	bool addCSS(int block_id, const char* name, const char* content = nullptr);
 	bool addBlock(const Block& block);
 
@@ -44,8 +48,8 @@ public:
 	char* getContentByBlockIdByAttName(int block_id, const char* nameOfAttribute);
 	int getNumberOfCSSDataNamed(const char* name, Type type);
 	char* getContentOfAttributeBySelector(const char* nameOfSelector, const char* nameOfAttribute);
-	int removeBlockByBlockId(int block_id);
-	int removeAttributeByBlockId(int block_id, const char* nameOfAttribute);
+	bool removeBlockByBlockId(int block_id);
+	bool removeAttributeByBlockIdByAttName(int block_id, const char* nameOfAttribute);
 	void handleCommand(String* arg);
 	int strToNumber(String& str);
 	void printCommand(String* arg);

@@ -147,6 +147,10 @@ LList::LList(const CSSData& structure)
 }
 LList::~LList()
 {
+	if (this->head != nullptr)
+	{
+		delete head;
+	}
 	//this->emptyList();
 }
 void LList::initHead(const CSSData& structure)
@@ -190,8 +194,11 @@ int LList::getLength()
 }
 void LList::emptyList()
 {
-	//TODO
-	// check if dllnode has llnode*
+	if (this->head != nullptr)
+	{
+		delete this->head;
+		this->head = nullptr;
+	}
 }
 bool LList::isEmpty()
 {
@@ -208,11 +215,20 @@ LLNode::LLNode(const CSSData& structure)
 	this->next = nullptr;
 	this->Data = structure;
 }
+void LLNode::letItGo()
+{
+	if (this->next != nullptr)
+	{
+		this->next->letItGo();
+	}
+	this->next = nullptr;
+}
 LLNode::~LLNode()
 {
 	if (this->next != nullptr)
 	{
-		delete next;
+		delete this->next;
+		this->next = nullptr;
 	}
 }
 
@@ -227,6 +243,25 @@ void DLList::initHead()
 void DLList::printList()
 {
 	//this->Data[0].printBlock();
+}
+void DLList::removeNode(DLLNode* node)
+{
+	if (node->prev == nullptr) this->head = node->next;
+	else
+	{
+		if (node->prev != nullptr) node->prev->next = node->next;
+		if (node->next != nullptr) node->next->prev = node->prev;
+		node->next = nullptr;
+		node->prev = nullptr;
+		delete node;
+	}
+}
+DLList::~DLList()
+{
+	if (this->head != nullptr)
+	{
+		delete head;
+	}
 }
 bool DLLNode::isEmpty()
 {
@@ -253,6 +288,13 @@ DLLNode::DLLNode()
 		this->flag[i] = false;
 	}
 };
+DLLNode::~DLLNode()
+{
+	if (this->next != nullptr)
+	{
+		delete this->next;
+	}
+}
 void DLLNode::addCSS(int block_id, const char* name, const char* content)
 {
 	this->flag[block_id] = true;
