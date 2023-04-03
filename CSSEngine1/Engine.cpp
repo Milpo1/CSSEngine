@@ -431,6 +431,7 @@ void Engine::getInput()
 				}
 				if (len > 1)
 				{
+					text.cutSpaces();
 					tempBlock->addCSS(text.getStr());
 				}
 				text.clear();

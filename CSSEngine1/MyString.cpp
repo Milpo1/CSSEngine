@@ -170,6 +170,12 @@ void String::cutSpaces()
 	{
 		return;
 	}
+	int l = this->getLength() - 1;
+	for (; l >= 0; l--)
+	{
+		if (this->str[l] == ' ') this->str[l] = EOS;
+		else if (this->str[l] != '\0') return;
+	}
 
 }
 String::~String()
