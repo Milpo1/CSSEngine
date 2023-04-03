@@ -34,6 +34,7 @@ void String::clear()
 }
 int String::getLength() const
 {
+	if (this == nullptr) return 0;
 	if (this->str == nullptr) return 0;
 	int l = 0;
 	while (this->str[l++] != EOS) {}

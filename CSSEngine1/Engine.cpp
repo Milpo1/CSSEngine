@@ -15,26 +15,40 @@ Engine::Engine()
 {
 	this->nOfBlocks = 0;
 }
-Block* Engine::findFirstFreeBlock(DLLNode** ptrToUpdate)
+Block* Engine::findFirstFreeBlock(DLLNode** ptrToUpdate, int* interCounter)
 {
 	if (this->DLList.head == nullptr) this->DLList.initHead();
-	DLLNode* ptr = this->DLList.head;
-	int firstFreeBlock = ptr->isFull();
-	if (ptr == nullptr) return nullptr;
-	while (firstFreeBlock == NodeSize)
+	DLLNode* node = this->DLList.head;
+	Block* block = nullptr;
+	int block_id = this->nOfBlocks;
+	int i = 0;
+	while (node != nullptr)
 	{
-		if (ptr->next == nullptr)
+		for (i = 0; i < NodeSize; i++)
 		{
-			ptr->next = new DLLNode;
-			ptr->next->prev = ptr;
-		}
-		ptr = ptr->next;
-		firstFreeBlock = ptr->isFull();
-	}
-	if (ptr == nullptr) return nullptr;
-	if (ptrToUpdate != nullptr) *ptrToUpdate = ptr;
-	return &(ptr->Data[firstFreeBlock]);
+			if (block_id == 0)
+			{
+				block = &(node->Data[i]);
+				break;
+			}			
+			if (node->flag[i]) block_id--;
 
+		}
+		if (block == nullptr)
+		{
+			if (node->next == nullptr)
+			{
+				node->next = new DLLNode;
+				node->next->prev = node;
+			}
+			node = node->next;
+		}
+		else break;
+	}
+	if (node == nullptr) return nullptr;
+	if (ptrToUpdate != nullptr) *ptrToUpdate = node;
+	if (interCounter != nullptr) *interCounter = i;
+	return block;
 }
 LLNode* Engine::findNodeWithName(LList* list, const char* str, LLNode** prev)
 {
@@ -58,8 +72,8 @@ LLNode* Engine::findNodeWithName(LList* list, const char* str, LLNode** prev)
 bool Engine::addBlock(const Block& block)
 {
 	DLLNode* node;
-	Block* firstFree = findFirstFreeBlock(&node);
-	int cellNumber = node->isFull();
+	int cellNumber;
+	Block* firstFree = findFirstFreeBlock(&node,&cellNumber);
 	if (firstFree != nullptr)
 	{
 		*firstFree = block;
@@ -532,9 +546,17 @@ void Engine::getInput()
 					}
 					if (textStr == nullptr) break;
 					char stringToAppend[] = { textStr[i], EOS };
+					if (currentArg - arg >= 3)
+					{
+						textStr = nullptr;
+						break;
+					}
 					*currentArg = *currentArg + stringToAppend;
 				}
-				this->handleCommand(arg);
+				if (textStr != nullptr)
+				{
+					this->handleCommand(arg);
+				}
 				text.clear();
 				continue;
 			}
