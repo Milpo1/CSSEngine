@@ -22,28 +22,31 @@ Block* Engine::findFirstFreeBlock(DLLNode** ptrToUpdate, int* interCounter)
 	Block* block = nullptr;
 	int block_id = this->nOfBlocks;
 	int i = 0;
-	while (node != nullptr)
+	while (node->next != nullptr)
 	{
-		for (i = 0; i < NodeSize; i++)
+		node = node->next;
+	}
+	if (node->flag[NodeSize - 1])
+	{
+		node->next = new DLLNode;
+		node->next->prev = node;
+		node = node->next;
+		block = &(node->Data[0]);
+	}
+	else
+	{
+		for (i = NodeSize - 1; i > 0; i--)
 		{
-			if (block_id == 0)
+			if (node->flag[i - 1])
 			{
 				block = &(node->Data[i]);
 				break;
-			}			
-			if (node->flag[i]) block_id--;
-
+			}
 		}
 		if (block == nullptr)
 		{
-			if (node->next == nullptr)
-			{
-				node->next = new DLLNode;
-				node->next->prev = node;
-			}
-			node = node->next;
+			block = &(node->Data[0]);
 		}
-		else break;
 	}
 	if (node == nullptr) return nullptr;
 	if (ptrToUpdate != nullptr) *ptrToUpdate = node;
@@ -471,7 +474,7 @@ void Engine::getInput()
 					if (tempBlock != nullptr)
 					{
 						this->addBlock(*tempBlock);
-						emptyBlock(&tempBlock);////////////////////////////////////////winowajca
+						emptyBlock(&tempBlock);
 						tempBlock = new Block;
 					}
 				}

@@ -252,7 +252,15 @@ void DLList::printList()
 }
 void DLList::removeNode(DLLNode* node)
 {
-	if (node->prev == nullptr) this->head = node->next;
+	if (node->prev == nullptr)
+	{
+		DLLNode* temp = node->next;
+		if (temp != nullptr) temp->prev = nullptr;
+		this->head->next = nullptr;
+		this->head->prev = nullptr;
+		delete this->head;
+		this->head = temp;
+	}
 	else
 	{
 		if (node->prev != nullptr) node->prev->next = node->next;
