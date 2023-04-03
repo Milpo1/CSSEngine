@@ -17,6 +17,7 @@ public:
 	void clear();
 	void allocate(int length);
 	void setStr(const char* str);
+	void cutSpaces();
 	char* getStr() const;
 	bool isNumber();
 	//Checks if the string contains an alphanumeric character

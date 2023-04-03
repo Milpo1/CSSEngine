@@ -173,7 +173,17 @@ void LList::addAtEnd(const CSSData& structure)
 	}
 	while (ptr->next != nullptr)
 	{
+		if (strcmp(structure.GetName(), ptr->Data.GetName()) == 0)
+		{
+			ptr->Data = structure;
+			return;
+		}
 		ptr = ptr->next;
+	}
+	if (strcmp(structure.GetName(), ptr->Data.GetName()) == 0)
+	{
+		ptr->Data = structure;
+		return;
 	}
 	ptr->next = new LLNode(structure);
 }

@@ -164,6 +164,14 @@ String& String::operator+(const char* right)
 	}
 	return *this;
 }
+void String::cutSpaces()
+{
+	if (this == nullptr || this->str == nullptr)
+	{
+		return;
+	}
+
+}
 String::~String()
 {
 	if (str != nullptr)

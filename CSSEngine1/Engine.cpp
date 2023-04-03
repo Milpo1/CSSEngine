@@ -109,13 +109,13 @@ int Engine::getNumberOfBlocks()
 int Engine::getNumberOfSelectorsByBlockId(int block_id) //
 {
 	Block* block = this->getBlockByBlockId(block_id);
-	if (block == nullptr) return 0;
+	if (block == nullptr) return -1;
 	return block->selectors.getLength();
 }
 int Engine::getNumberOfAttributesByBlockId(int block_id) //
 {
 	Block* block = this->getBlockByBlockId(block_id);
-	if (block == nullptr) return 0;
+	if (block == nullptr) return -1;
 	return block->attributes.getLength();
 }
 char* Engine::getSelectorByBlockIdBySelectorId(int block_id, int selector_id) //
@@ -322,7 +322,7 @@ void Engine::handleCommand(String* arg) // -,-,-
 			if (arg[THIRD] == COMMAND_ASK_SIGN) // i,S,?
 			{
 				result = getNumberOfSelectorsByBlockId(blockId);
-				if (result <= 0) result = -1;
+				if (result < 0) result = -1;
 			}
 			else // i,S,X
 			{
@@ -335,7 +335,7 @@ void Engine::handleCommand(String* arg) // -,-,-
 			if (arg[THIRD] == COMMAND_ASK_SIGN) // i,A,?
 			{
 				result = getNumberOfAttributesByBlockId(blockId);
-				if (result <= 0) result = -1;
+				if (result < 0) result = -1;
 			}
 			else
 			{
@@ -420,7 +420,8 @@ void Engine::getInput()
 		if (ch == EOL && mode != SEARCH_COMMANDS) continue;
 		if (mode == SEARCH_SELECTORS)
 		{
-			if (ch == SPACE) continue;
+			int len = text.getLength();
+			if (ch == SPACE && len <= 1) continue;
 			if (ch == BLOCK_CLOSE) continue;
 			if (ch == SELECTOR_SEPARATOR || ch == BLOCK_OPEN)
 			{
@@ -428,7 +429,7 @@ void Engine::getInput()
 				{
 					mode = SEARCH_ATT_NAMES;
 				}
-				if (text.getLength() > 1)
+				if (len > 1)
 				{
 					tempBlock->addCSS(text.getStr());
 				}
