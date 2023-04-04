@@ -40,10 +40,6 @@ int String::getLength() const
 	while (this->str[l++] != EOS) {}
 	return l;
 }
-int String::getBlocks() const
-{
-	return this->blocks;
-}
 void String::allocate(int length)
 {
 	if (length < 0) return;

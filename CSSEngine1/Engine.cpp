@@ -288,15 +288,6 @@ void emptyBlock(Block** ptr)
 		}
 	}
 }
-/*int pow(int a, int n)
-{
-	if (a == 0) return 0;
-	if (a == 1) return 1;
-	if (n < 0) return 0;
-	if (a == 2) return a << n;
-	int pow = a;
-	for (int i = 1; i < n; i++) pow *= a;
-}*/
 int Engine::strToNumber(String& str)
 {
 	int sum = -1;
@@ -418,9 +409,6 @@ enum mode
 
 void Engine::getInput()
 {
-	//TODO
-	// Odrzucanie powrotzen przy dodawaniu CSSdata do bloku
-
 	int mode = SEARCH_SELECTORS;
 	// 0 - looking for selectors
 	// 1 - looking for attribute names
@@ -435,6 +423,7 @@ void Engine::getInput()
 	{
 		if (ch == '\t') continue;
 		if (ch == EOL && mode != SEARCH_COMMANDS) continue;
+		if (ch != EOL && ch < SPACE) continue;
 		if (mode == SEARCH_SELECTORS)
 		{
 			int len = text.getLength();

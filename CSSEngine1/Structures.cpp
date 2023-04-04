@@ -83,39 +83,11 @@ CSSData::~CSSData()
 	if (this->content != nullptr)
 		delete[] this->content;
 }
-void CSSData::print()
-{
-	if (this->name == nullptr)
-	{
-		//cout << this << ": name field empty\n";
-		//return;
-	}
-	else cout << this->name;
-	if (this->content == nullptr)
-	{
-		//cout << this << ": content field empty\n";
-	}
-	else cout << ": " << this->content;
-	cout << "\n";
-}
 
 
 Block::~Block()
 {
 
-}
-void Block::printBlock()
-{
-	if (this->selectors.isEmpty())
-	{
-		cout << "Block " << this << ": empty selector list\n";
-	}
-	else this->selectors.printList();
-	if (this->attributes.isEmpty())
-	{
-		cout << "Block " << this << ": empty attribute list\n";
-	}
-	else this->attributes.printList();
 }
 void Block::addCSS(const char* name, const char* content)
 {
@@ -152,15 +124,6 @@ LList::~LList()
 void LList::initHead(const CSSData& structure)
 {
 	this->head = new LLNode(structure);
-}
-void LList::printList()
-{
-	LLNode* ptr = this->head;
-	while (ptr != nullptr)
-	{
-		ptr->Data.print();
-		ptr = ptr->next;
-	}
 }
 
 void LList::addAtEnd(const CSSData& structure)
@@ -285,14 +248,6 @@ bool DLLNode::isEmpty()
 		if (this->flag[i] == true) return false;
 	}
 	return true;
-}
-int DLLNode::isFull()
-{
-	for (int i = 0; i < NodeSize; i++)
-	{
-		if (this->flag[i] == false) return i;
-	}
-	return NodeSize;
 }
 DLLNode::DLLNode()
 {

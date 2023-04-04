@@ -14,11 +14,10 @@ public:
 	void SetName(const char* name);
 	char* GetContent() const;
 	void SetContent(const char* content);
-	void print();
 	CSSData();
 	CSSData(const char* name, const char* content = nullptr);
 	CSSData& operator=(const CSSData& right);
-	CSSData(const CSSData& other); //the copy constructor 
+	CSSData(const CSSData& other);
 	~CSSData();
 };
 
@@ -39,7 +38,6 @@ class LList
 public:
 	LLNode* head;
 	void initHead(const CSSData& structure);
-	void printList();
 	void addAtEnd(const CSSData& structure);
 	int getLength();
 	void emptyList();
@@ -55,7 +53,6 @@ public:
 	LList attributes;
 	void addCSS(const char* name, const char* content = nullptr);
 	void addCSS(const CSSData& structure);
-	void printBlock();
 	~Block();
 };
 
@@ -69,7 +66,6 @@ public:
 	DLLNode* prev;
 	void addCSS(int block_id, const char* name, const char* content = nullptr);
 	bool isEmpty();
-	int isFull();
 	DLLNode();
 	~DLLNode();
 };

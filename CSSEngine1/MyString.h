@@ -13,7 +13,6 @@ public:
 	String(const String& other);
 	~String();
 	int getLength() const;
-	int getBlocks() const;
 	void clear();
 	void allocate(int length);
 	void setStr(const char* str);
