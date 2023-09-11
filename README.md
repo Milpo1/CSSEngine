@@ -35,7 +35,7 @@ Przy alokowaniu nowego węzła tworzona jest tablica T elementowa. Przy dodawani
 
  
 Przykład:
-
+```
 #breadcrumb 
 {
 	width: 80%;
@@ -86,3 +86,4 @@ h1,E,color == #0066CB
 2,D, color == deleted
 ? == 1
 ? == 2
+```
