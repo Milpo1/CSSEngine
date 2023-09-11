@@ -1,4 +1,5 @@
-# CSSEngine
+# CSSEngine 
+Instrukcja by PG ETI
 Procesor CSS
 Celem zadania jest napisanie prostego silnika przetwarzającego CSS-y. W ramach zadania należy wczytać ze standardowego wejścia sekcje CSS przeplatane sekcjami komend. Sekcje CSS należy sparsować i umieścić w odpowiednich strukturach, sekcje komend należy sparsować i wykonać wypisując na standardowe wyjście ew. rezultaty (po ==).
 
